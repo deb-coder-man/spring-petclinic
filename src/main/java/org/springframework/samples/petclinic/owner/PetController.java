@@ -68,8 +68,8 @@ class PetController {
 	}
 
 	/**
-	 * Provides all available {@link PetType} values for the {@code types} model attribute,
-	 * used to populate the type drop-down on pet forms.
+	 * Provides all available {@link PetType} values for the {@code types} model
+	 * attribute, used to populate the type drop-down on pet forms.
 	 * @return a collection of all pet types
 	 */
 	@ModelAttribute("types")
@@ -93,12 +93,13 @@ class PetController {
 
 	/**
 	 * Resolves the {@link Pet} model attribute. Returns a new, empty {@link Pet} when no
-	 * {@code petId} is present in the path (e.g. on the creation form); otherwise looks up
-	 * the pet on the owner.
+	 * {@code petId} is present in the path (e.g. on the creation form); otherwise looks
+	 * up the pet on the owner.
 	 * @param ownerId the owner's primary key
 	 * @param petId the pet's primary key, or {@code null} if not present in the path
 	 * @return the existing {@link Pet} for the given ID, or a new {@link Pet} instance
-	 * @throws IllegalArgumentException if {@code ownerId} does not match an existing owner
+	 * @throws IllegalArgumentException if {@code ownerId} does not match an existing
+	 * owner
 	 */
 	@ModelAttribute("pet")
 	public Pet findPet(@PathVariable("ownerId") int ownerId,
@@ -178,7 +179,8 @@ class PetController {
 	}
 
 	/**
-	 * Displays the pet update form, pre-populated via the {@link #findPet} model attribute.
+	 * Displays the pet update form, pre-populated via the {@link #findPet} model
+	 * attribute.
 	 * @return the logical view name for the create/update pet form
 	 */
 	@GetMapping("/pets/{petId}/edit")
@@ -188,9 +190,9 @@ class PetController {
 
 	/**
 	 * Processes the pet update form submission. Validates that the new name does not
-	 * conflict with a different existing pet of the same owner, and that the birth date is
-	 * not in the future. Delegates to {@link #updatePetDetails} on success; redisplays the
-	 * form on validation failure.
+	 * conflict with a different existing pet of the same owner, and that the birth date
+	 * is not in the future. Delegates to {@link #updatePetDetails} on success; redisplays
+	 * the form on validation failure.
 	 * @param owner the owner of the pet being updated
 	 * @param pet the pet with updated field values, populated and validated from the form
 	 * @param result holds any validation errors

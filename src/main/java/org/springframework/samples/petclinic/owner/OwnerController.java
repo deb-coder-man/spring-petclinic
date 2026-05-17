@@ -41,8 +41,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 /**
  * Spring MVC controller for managing {@link Owner} entities.
  *
- * Handles HTTP requests for creating, updating, finding, and displaying owners.
- * All routes are prefixed with {@code /owners}.
+ * Handles HTTP requests for creating, updating, finding, and displaying owners. All
+ * routes are prefixed with {@code /owners}.
  *
  * @author Juergen Hoeller
  * @author Ken Krebs
@@ -80,8 +80,10 @@ class OwnerController {
 	 * {@code ownerId} path variable. Returns a new, empty {@link Owner} when no ID is
 	 * present (e.g. on the creation form).
 	 * @param ownerId the owner's primary key, or {@code null} if not present in the path
-	 * @return the existing {@link Owner} for the given ID, or a new {@link Owner} instance
-	 * @throws IllegalArgumentException if {@code ownerId} is provided but no matching owner exists
+	 * @return the existing {@link Owner} for the given ID, or a new {@link Owner}
+	 * instance
+	 * @throws IllegalArgumentException if {@code ownerId} is provided but no matching
+	 * owner exists
 	 */
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable(name = "ownerId", required = false) Integer ownerId) {
@@ -107,7 +109,8 @@ class OwnerController {
 	 * @param owner the owner to create, populated and validated from the form
 	 * @param result holds any validation errors
 	 * @param redirectAttributes used to pass flash messages to the redirect target
-	 * @return a redirect to the new owner's detail page, or the form view if there are errors
+	 * @return a redirect to the new owner's detail page, or the form view if there are
+	 * errors
 	 */
 	@PostMapping("/owners/new")
 	public String processCreationForm(@Valid Owner owner, BindingResult result, RedirectAttributes redirectAttributes) {

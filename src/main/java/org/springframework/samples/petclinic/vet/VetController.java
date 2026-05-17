@@ -29,8 +29,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 /**
  * Spring MVC controller for displaying {@link Vet} information.
  *
- * Exposes two endpoints: a paginated HTML list at {@code /vets.html} and a JSON
- * resource at {@code /vets}.
+ * Exposes two endpoints: a paginated HTML list at {@code /vets.html} and a JSON resource
+ * at {@code /vets}.
  *
  * @author Juergen Hoeller
  * @author Mark Fisher
