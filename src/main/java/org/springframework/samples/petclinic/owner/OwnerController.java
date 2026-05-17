@@ -39,6 +39,11 @@ import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
+ * Spring MVC controller for managing {@link Owner} entities.
+ *
+ * Handles HTTP requests for creating, updating, finding, and displaying owners.
+ * All routes are prefixed with {@code /owners}.
+ *
  * @author Juergen Hoeller
  * @author Ken Krebs
  * @author Arjen Poutsma
@@ -52,15 +57,32 @@ class OwnerController {
 
 	private final OwnerRepository owners;
 
+	/**
+	 * Constructs an {@code OwnerController} with the given owner repository.
+	 * @param owners the repository used to persist and query {@link Owner} data
+	 */
 	public OwnerController(OwnerRepository owners) {
 		this.owners = owners;
 	}
 
+	/**
+	 * Prevents binding of the {@code id} and nested {@code id} fields from web requests,
+	 * guarding against mass-assignment of internal identifiers.
+	 * @param dataBinder the binder to configure
+	 */
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
 		dataBinder.setDisallowedFields("id", "*.id");
 	}
 
+	/**
+	 * Resolves the {@link Owner} model attribute for request handlers that include an
+	 * {@code ownerId} path variable. Returns a new, empty {@link Owner} when no ID is
+	 * present (e.g. on the creation form).
+	 * @param ownerId the owner's primary key, or {@code null} if not present in the path
+	 * @return the existing {@link Owner} for the given ID, or a new {@link Owner} instance
+	 * @throws IllegalArgumentException if {@code ownerId} is provided but no matching owner exists
+	 */
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable(name = "ownerId", required = false) Integer ownerId) {
 		return ownerId == null ? new Owner()
@@ -69,11 +91,24 @@ class OwnerController {
 							+ ". Please ensure the ID is correct " + "and the owner exists in the database."));
 	}
 
+	/**
+	 * Displays the owner creation form.
+	 * @return the logical view name for the create/update owner form
+	 */
 	@GetMapping("/owners/new")
 	public String initCreationForm() {
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
 
+	/**
+	 * Processes the owner creation form submission. Saves the new owner and redirects to
+	 * their detail page on success, or redisplays the form with an error message on
+	 * validation failure.
+	 * @param owner the owner to create, populated and validated from the form
+	 * @param result holds any validation errors
+	 * @param redirectAttributes used to pass flash messages to the redirect target
+	 * @return a redirect to the new owner's detail page, or the form view if there are errors
+	 */
 	@PostMapping("/owners/new")
 	public String processCreationForm(@Valid Owner owner, BindingResult result, RedirectAttributes redirectAttributes) {
 		if (result.hasErrors()) {
@@ -86,11 +121,25 @@ class OwnerController {
 		return "redirect:/owners/" + owner.getId();
 	}
 
+	/**
+	 * Displays the owner search form.
+	 * @return the logical view name for the find-owners page
+	 */
 	@GetMapping("/owners/find")
 	public String initFindForm() {
 		return "owners/findOwners";
 	}
 
+	/**
+	 * Searches for owners by last name with pagination. A missing or blank last name
+	 * returns all owners. Redirects directly to the owner detail page when exactly one
+	 * match is found; otherwise renders a paginated list.
+	 * @param page the 1-based page number to display (defaults to {@code 1})
+	 * @param owner an {@link Owner} whose {@code lastName} field drives the search
+	 * @param result holds any field-level errors (e.g. when no owners are found)
+	 * @param model the Spring MVC model populated for the list view
+	 * @return a redirect to the single matching owner, the list view, or the find form
+	 */
 	@GetMapping("/owners")
 	public String processFindForm(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
 			Model model) {
@@ -118,6 +167,14 @@ class OwnerController {
 		return addPaginationModel(page, model, ownersResults);
 	}
 
+	/**
+	 * Populates the model with pagination metadata and the current page of owners, then
+	 * returns the owners list view.
+	 * @param page the current 1-based page number
+	 * @param model the Spring MVC model to populate
+	 * @param paginated the paginated query result
+	 * @return the logical view name for the owners list
+	 */
 	private String addPaginationModel(int page, Model model, Page<Owner> paginated) {
 		List<Owner> listOwners = paginated.getContent();
 		model.addAttribute("currentPage", page);
@@ -127,17 +184,40 @@ class OwnerController {
 		return "owners/ownersList";
 	}
 
+	/**
+	 * Queries the repository for a page of owners whose last name starts with the given
+	 * string. Page size is fixed at 5 records.
+	 * @param page the 1-based page number
+	 * @param lastname the last-name prefix to filter by (empty string matches all)
+	 * @return a {@link Page} of matching {@link Owner} records
+	 */
 	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
 		return owners.findByLastNameStartingWith(lastname, pageable);
 	}
 
+	/**
+	 * Displays the owner update form, pre-populated via the {@link #findOwner} model
+	 * attribute.
+	 * @return the logical view name for the create/update owner form
+	 */
 	@GetMapping("/owners/{ownerId}/edit")
 	public String initUpdateOwnerForm() {
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
 
+	/**
+	 * Processes the owner update form submission. Verifies that the form's owner ID
+	 * matches the path variable before saving. Redirects to the owner's detail page on
+	 * success, or redisplays the form with an error message on validation or ID-mismatch
+	 * failure.
+	 * @param owner the updated owner data, populated and validated from the form
+	 * @param result holds any validation errors
+	 * @param ownerId the owner's primary key from the URL path
+	 * @param redirectAttributes used to pass flash messages to the redirect target
+	 * @return a redirect to the owner's detail page, or the form view if there are errors
+	 */
 	@PostMapping("/owners/{ownerId}/edit")
 	public String processUpdateOwnerForm(@Valid Owner owner, BindingResult result, @PathVariable("ownerId") int ownerId,
 			RedirectAttributes redirectAttributes) {
@@ -159,9 +239,10 @@ class OwnerController {
 	}
 
 	/**
-	 * Custom handler for displaying an owner.
+	 * Displays the detail page for a single owner.
 	 * @param ownerId the ID of the owner to display
-	 * @return a ModelMap with the model attributes for the view
+	 * @return a {@link ModelAndView} containing the owner object for the detail view
+	 * @throws IllegalArgumentException if no owner exists with the given ID
 	 */
 	@GetMapping("/owners/{ownerId}")
 	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
